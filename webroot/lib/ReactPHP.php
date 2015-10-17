@@ -43,7 +43,7 @@ abstract class ReactComponent {
     /** @var callable[] */
     private $onSubmit = [];
 
-    public function __construct($props) {
+    public function __construct($props = []) {
         $this->props = $props;
         $this->state = $this->getInitialState();
         $this->componentDidMount();
@@ -56,10 +56,13 @@ abstract class ReactComponent {
     private function doRender() {
         $this->children = [];
         $this->onSubmit = [];
+        $this->html = $this->_doRender();
+    }
 
+    protected function _doRender() {
         ob_start();
         $this->render();
-        $this->html = ob_get_clean();
+        return ob_get_clean();
     }
 
     /**
@@ -136,12 +139,16 @@ abstract class ReactComponent {
     public function fireSubmit($httpMethod) {
         if (isset($this->onSubmit[$httpMethod])) {
             foreach ($this->onSubmit[$httpMethod] as $onSubmit) {
-                call_user_func($onSubmit);
+                $this->_fireSubmit($onSubmit);
             }
         }
         foreach ($this->children as $child) {
             $child->fireSubmit($httpMethod);
         }
+    }
+
+    protected function _fireSubmit($onSubmit) {
+        call_user_func($onSubmit);
     }
 
     public function rerender() {
