@@ -1,14 +1,6 @@
 <?php
 namespace ReactPHP;
 
-function marked($str, $opt) {
-    if (!empty($opt['sanitize'])) {
-        return ['__html' => htmlspecialchars($str)];
-    } else {
-        return $str;
-    }
-}
-
 class ReactPHP {
     public static function getRequest($name) {
         return (isset($_REQUEST[$name]) ? $_REQUEST[$name] : '');
