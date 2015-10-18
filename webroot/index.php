@@ -79,21 +79,18 @@ class Comment extends ReactComponent {
 }
 
 class CommentForm extends ReactComponent {
-    public function handleSubmit($onCommentSubmit) {
+    public function handleSubmit() {
         $author = trim(ReactPHP::getRequest('author'));
         $text = trim(ReactPHP::getRequest('text'));
         if (!$text || !$author) {
             return;
         }
-        call_user_func($onCommentSubmit, ['author' => $author, 'text' => $text]);
+        call_user_func($this->props('onCommentSubmit'), ['author' => $author, 'text' => $text]);
     }
 
     public function render() {
-        $this->onSubmit('POST', function () {
-            $this->handleSubmit($this->props('onCommentSubmit'));
-        });
         ?>
-        <form class="commentForm" method="post">
+        <form class="commentForm" <?= $this->onSubmitForm('handleSubmit') ?>>
             <input type="text" placeholder="Your name" name="author"/>
             <input type="text" placeholder="Say something..." name="text"/>
             <input type="submit" value="Post"/>
@@ -109,6 +106,7 @@ class CommentForm extends ReactComponent {
 <head>
     <meta charset="utf-8"/>
     <title>ReactPHP Tutorial</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 </head>
 <body>
 <div id="content">

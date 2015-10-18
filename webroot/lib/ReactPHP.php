@@ -11,16 +11,43 @@ class ReactPHP {
      * @return string
      */
     public static function element($component) {
-        //構築後の処理を行う(サブミットを処理もここで行う)
-        $httpMethod = strtoupper($_SERVER["REQUEST_METHOD"]);
-        $component->fireComponentDidMount($httpMethod);
+        $component->construct();
 
-        //ステータスが変わったら、そこから下位を再描画
-        $component->rerender();
+        //構築後の処理を行う()
+        $component->fireComponentDidMount();
+        $component->rerender(); //ステータスが変わったら、そこから下位を再描画
+
+        //サブミットを処理
+        $httpMethod = strtoupper($_SERVER["REQUEST_METHOD"]);
+        $handlerAddress = ReactPHP::getRequest('handlerAddress');
+        $component->fireSubmit($httpMethod, $handlerAddress);
+        $component->rerender(); //ステータスが変わったら、そこから下位を再描画
 
         //DOM描画
-        $html = $component->toHtml();
+        $html = $component->toHtml() . self::writeBasicJs();
         return $html;
+    }
+
+    private static function writeBasicJs() {
+        return <<< 'EOS'
+<script type="text/javascript">
+var ReactPHP = {};
+ReactPHP.submitLink = function(node, handlerAddress) {
+    var $form = $('#ReactPHPForm');
+    $form.find('[name="handlerAddress"]').val(handlerAddress);
+    $form.submit();
+};
+ReactPHP.submitForm = function(node, handlerAddress) {
+    var $form = $(node);
+    $('<input type="hidden" name="handlerAddress" value="' + handlerAddress + '" />').appendTo($this);
+    $form.attr('method', 'post');
+    $form.submit();
+}
+</script>
+<form method="post" id="ReactPHPForm">
+    <input name="handlerAddress" value="" />
+</form>
+EOS;
     }
 }
 
@@ -45,10 +72,11 @@ abstract class ReactComponent {
 
     public function __construct($props = []) {
         $this->props = $props;
+    }
+
+    public function construct() {
         $this->state = $this->getInitialState();
-
         $this->doRender();
-
         $this->stateChanged = false;
     }
 
@@ -118,8 +146,23 @@ abstract class ReactComponent {
         $this->children[$idx] = $component;
         $html = '{{#####' . $idx . '#####}}';
 
+        //アドレスが確定したのでセット
+        $component->setAddress($this->address . "." . $idx);
+
+        //初期化
+        $component->construct();
+
         //返す
         return $html;
+    }
+
+    private $address;
+    public function setAddress($address) {
+        $this->address = $address;
+    }
+
+    public function getAddress() {
+        return $this->address;
     }
 
     /**
@@ -127,28 +170,40 @@ abstract class ReactComponent {
      */
     public abstract function render();
 
-    /**
-     * @param string   $httpMethod
-     * @param callable $callback
-     */
-    public function onSubmit($httpMethod, $callback) {
-        $this->onSubmit[$httpMethod][] = $callback;
+    public function onSubmitA($handlerName) {
+        $address = $this->_onSubmit($handlerName);
+        return ' href="javascript:ReactPHP.submitLink(this, \'' . htmlspecialchars($address) . '\');"';
     }
 
-    public function fireComponentDidMount($httpMethod) {
+    public function onSubmitForm($handlerName) {
+        $address = $this->_onSubmit($handlerName);
+        return ' onclick="ReactPHP.submit(this, \'' . htmlspecialchars($address) . '\');"';
+    }
+
+    private function _onSubmit($handlerName) {
+        $address = $this->address . "." . $handlerName;
+        $this->onSubmit[$address] = [$this, $handlerName];
+        return $address;
+    }
+
+    public function fireComponentDidMount() {
         $this->componentDidMount();
-        if (isset($this->onSubmit[$httpMethod])) {
-            foreach ($this->onSubmit[$httpMethod] as $onSubmit) {
-                $this->_fireSubmit($onSubmit);
-            }
+        foreach ($this->children as $child) {
+            $child->fireComponentDidMount();
+        }
+    }
+
+    public function fireSubmit($httpMethod, $handlerAddress) {
+        if ($handlerAddress && isset($this->onSubmit[$handlerAddress])) {
+            $this->_fireSubmit($this->onSubmit[$handlerAddress], $httpMethod);
         }
         foreach ($this->children as $child) {
-            $child->fireComponentDidMount($httpMethod);
+            $child->fireSubmit($httpMethod, $handlerAddress);
         }
     }
 
-    protected function _fireSubmit($onSubmit) {
-        call_user_func($onSubmit);
+    protected function _fireSubmit($onSubmit, $httpMethod) {
+        call_user_func($onSubmit, $httpMethod);
     }
 
     public function rerender() {
