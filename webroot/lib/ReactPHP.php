@@ -45,7 +45,7 @@ ReactPHP.submitForm = function(node, handlerAddress) {
 }
 </script>
 <form method="post" id="ReactPHPForm">
-    <input name="handlerAddress" value="" />
+    <input type="hidden" name="handlerAddress" value="" />
 </form>
 EOS;
     }
