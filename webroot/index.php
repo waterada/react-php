@@ -6,6 +6,11 @@ use ReactPHP\ReactComponent;
 use ReactPHP\File;
 function h($str) { return htmlspecialchars($str); } //デファオルトでの無害化は諦める
 
+//  CommentBox
+//      CommentList
+//          Comment
+//      CommentForm
+
 class CommentBox extends ReactComponent {
     private function loadCommentsFromFile($url) {
         $comments = File::load($url);
