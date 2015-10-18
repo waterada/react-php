@@ -11,9 +11,9 @@ class ReactPHP {
      * @return string
      */
     public static function element($component) {
-        //サブミットを処理
+        //構築後の処理を行う(サブミットを処理もここで行う)
         $httpMethod = strtoupper($_SERVER["REQUEST_METHOD"]);
-        $component->fireSubmit($httpMethod);
+        $component->fireComponentDidMount($httpMethod);
 
         //ステータスが変わったら、そこから下位を再描画
         $component->rerender();
@@ -46,7 +46,6 @@ abstract class ReactComponent {
     public function __construct($props = []) {
         $this->props = $props;
         $this->state = $this->getInitialState();
-        $this->componentDidMount();
 
         $this->doRender();
 
@@ -136,14 +135,15 @@ abstract class ReactComponent {
         $this->onSubmit[$httpMethod][] = $callback;
     }
 
-    public function fireSubmit($httpMethod) {
+    public function fireComponentDidMount($httpMethod) {
+        $this->componentDidMount();
         if (isset($this->onSubmit[$httpMethod])) {
             foreach ($this->onSubmit[$httpMethod] as $onSubmit) {
                 $this->_fireSubmit($onSubmit);
             }
         }
         foreach ($this->children as $child) {
-            $child->fireSubmit($httpMethod);
+            $child->fireComponentDidMount($httpMethod);
         }
     }
 

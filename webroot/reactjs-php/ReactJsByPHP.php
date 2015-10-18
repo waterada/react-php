@@ -21,7 +21,7 @@ class React {
 
         //サブミットを処理
         $httpMethod = strtoupper($_SERVER["REQUEST_METHOD"]);
-        $top->fireSubmit($httpMethod);
+        $top->fireComponentDidMount($httpMethod);
 
         //ステータスが変わったら、そこから下位を再描画
         $top->rerender();
