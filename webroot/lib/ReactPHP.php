@@ -39,9 +39,8 @@ ReactPHP.submitLink = function(node, handlerAddress) {
 };
 ReactPHP.submitForm = function(node, handlerAddress) {
     var $form = $(node);
-    $('<input type="hidden" name="handlerAddress" value="' + handlerAddress + '" />').appendTo($this);
+    $('<input type="hidden" name="handlerAddress" value="' + handlerAddress + '" />').appendTo($form);
     $form.attr('method', 'post');
-    $form.submit();
 }
 </script>
 <form method="post" id="ReactPHPForm">
@@ -177,7 +176,7 @@ abstract class ReactComponent {
 
     public function onSubmitForm($handlerName) {
         $address = $this->_onSubmit($handlerName);
-        return ' onclick="ReactPHP.submit(this, \'' . htmlspecialchars($address) . '\');"';
+        return ' onsubmit="ReactPHP.submitForm(this, \'' . htmlspecialchars($address) . '\');"';
     }
 
     private function _onSubmit($handlerName) {

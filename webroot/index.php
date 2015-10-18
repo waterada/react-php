@@ -12,12 +12,14 @@ function h($str) { return htmlspecialchars($str); } //デファオルトでの�
 //      CommentForm
 
 class CommentBox extends ReactComponent {
-    private function loadCommentsFromFile($url) {
+    private function loadCommentsFromFile() {
+        $url = $this->props('url');
         $comments = File::load($url);
         $this->setState('data', $comments);
     }
 
-    private function handleCommentSubmit($url, $comment) {
+    private function handleCommentSubmit($comment) {
+        $url = $this->props('url');
         $comments = $this->state('data');
         $comments[] = $comment;
         $this->setState('data', $comments);
@@ -29,7 +31,7 @@ class CommentBox extends ReactComponent {
     }
 
     protected function componentDidMount() {
-        $this->loadCommentsFromFile($this->props('url'));
+        $this->loadCommentsFromFile();
     }
 
     public function render() {
@@ -41,7 +43,7 @@ class CommentBox extends ReactComponent {
             ])) ?>
             <?= $this->element(new CommentForm([
                 'onCommentSubmit' => function ($comment) {
-                    $this->handleCommentSubmit($this->props('url'), $comment);
+                    $this->handleCommentSubmit($comment);
                 },
             ])) ?>
         </div>
