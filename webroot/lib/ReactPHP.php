@@ -182,3 +182,11 @@ class File {
         file_put_contents($path, json_encode($contents));
     }
 }
+
+function marked($str, $opt) {
+    if (!empty($opt['sanitize'])) {
+        $str = htmlspecialchars($str);
+    }
+    $str = preg_replace('/\*(.*?)\*/', '<span style="font-weight:bold;">$1</span>', $str);
+    return $str;
+}

@@ -62,8 +62,7 @@ class CommentList extends ReactComponent {
 
 class Comment extends ReactComponent {
     private function rawMarkup($text) {
-        $rawMarkup = htmlspecialchars($text);
-        $rawMarkup = str_replace('react', '<b>react</b>', $rawMarkup);
+        $rawMarkup = \ReactPHP\marked($text, ['sanitize' => true]);
         return $rawMarkup;
     }
 

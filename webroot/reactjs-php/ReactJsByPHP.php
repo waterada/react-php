@@ -3,11 +3,7 @@ namespace ReactJsByPHP;
 require '../lib/ReactPHP.php';
 
 function marked($str, $opt) {
-    if (!empty($opt['sanitize'])) {
-        return htmlspecialchars($str);
-    } else {
-        return $str;
-    }
+    return \ReactPHP\marked($str, $opt);
 }
 
 class React {
