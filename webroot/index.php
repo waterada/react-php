@@ -1,6 +1,6 @@
 <?
 namespace comments2;
-require 'lib/ReactPHP.php';
+require '../vendor/autoload.php';
 use ReactPHP\ReactPHP;
 use ReactPHP\ReactComponent;
 use ReactPHP\File;
@@ -69,7 +69,7 @@ class CommentList extends ReactComponent {
 
 class Comment extends ReactComponent {
     private function rawMarkup($text) {
-        $rawMarkup = \ReactPHP\marked($text, ['sanitize' => true]);
+        $rawMarkup = ReactPHP::marked($text, ['sanitize' => true]);
         return $rawMarkup;
     }
 
