@@ -1,5 +1,5 @@
 <?php
-namespace ReactPHP;
+namespace waterada\ReactPHP;
 
 class ReactPHP {
     public static function getRequest($name) {

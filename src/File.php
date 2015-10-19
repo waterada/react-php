@@ -1,5 +1,5 @@
 <?php
-namespace ReactPHP;
+namespace waterada\ReactPHP;
 
 class File {
     public static function load($path) {

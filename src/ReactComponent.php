@@ -1,5 +1,5 @@
 <?php
-namespace ReactPHP;
+namespace waterada\ReactPHP;
 
 abstract class ReactComponent {
     /** @var array */

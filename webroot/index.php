@@ -1,9 +1,9 @@
 <?
-namespace comments2;
+namespace comments;
 require '../vendor/autoload.php';
-use ReactPHP\ReactPHP;
-use ReactPHP\ReactComponent;
-use ReactPHP\File;
+use waterada\ReactPHP\ReactPHP;
+use waterada\ReactPHP\ReactComponent;
+use waterada\ReactPHP\File;
 function h($str) { return htmlspecialchars($str); } //デファオルトでの無害化は諦める
 
 //  CommentBox
