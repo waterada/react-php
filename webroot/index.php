@@ -1,5 +1,4 @@
 <?
-namespace comments;
 require '../vendor/autoload.php';
 use waterada\ReactPHP\ReactPHP;
 use waterada\ReactPHP\ReactComponent;
@@ -18,7 +17,7 @@ class CommentBox extends ReactComponent {
         $this->setState('data', $comments);
     }
 
-    private function handleCommentSubmit($comment) {
+    public function handleCommentSubmit($comment) {
         $url = $this->props('url');
         $comments = $this->state('data');
         $comments[] = $comment;
@@ -35,53 +34,43 @@ class CommentBox extends ReactComponent {
     }
 
     public function render() {
-        ?>
+        return '
         <div class="commentBox">
             <h1>Comments</h1>
-            <?= $this->element(new CommentList([
-                'data' => $this->state('data'),
-            ])) ?>
-            <?= $this->element(new CommentForm([
-                'onCommentSubmit' => function ($comment) {
-                    $this->handleCommentSubmit($comment);
-                },
-            ])) ?>
+            {{ "CommentList" | element({data: this.state.data}) }}
+            {{ "CommentForm" | element({onCommentSubmit: this.handleCommentSubmit}) }}
         </div>
-        <?
+        ';
     }
 }
 
 class CommentList extends ReactComponent {
     public function render() {
-        ?>
+        return '
         <div class="commentList">
-            <? foreach ($this->props('data') as $index => $comment): ?>
-                <?= $this->element(new Comment([
-                    'author' => $comment['author'],
-                    'key'    => $index,
-                    'text'   => $comment['text'],
-                ])) ?>
-            <? endforeach; ?>
+            {% for comment in this.props.data %}
+                {{ "Comment" | element({author: comment.author, key: loop.index0, text: comment.text}) }}
+            {% endfor %}
         </div>
-        <?
+        ';
     }
 }
 
 class Comment extends ReactComponent {
-    private function rawMarkup($text) {
+    public function rawMarkup($text) {
         $rawMarkup = ReactPHP::marked($text, ['sanitize' => true]);
         return $rawMarkup;
     }
 
     public function render() {
-        ?>
+        return '
         <div class="comment">
             <h2 class="commentAuthor">
-                <?= h($this->props('author')) ?>
+                {{this.props.author}}
             </h2>
-            <span><?= $this->rawMarkup($this->props('text')) /* 無害化不要 */ ?></span>
+            <span>{{this.rawMarkup(this.props.text)|raw}}</span>
         </div>
-        <?
+        ';
     }
 }
 
@@ -96,13 +85,13 @@ class CommentForm extends ReactComponent {
     }
 
     public function render() {
-        ?>
-        <form class="commentForm" <?= $this->onSubmitForm('handleSubmit') ?>>
+        return '
+        <form class="commentForm" onsubmit="{{this.handleSubmit|onsubmit}}">
             <input type="text" placeholder="Your name" name="author"/>
             <input type="text" placeholder="Say something..." name="text"/>
             <input type="submit" value="Post"/>
         </form>
-        <?
+        ';
     }
 }
 

@@ -17,29 +17,51 @@ abstract class ReactComponent {
     /** @var string */
     private $html = '';
 
-    /** @var callable[] */
-    private $onSubmit = [];
+    /** @var array */
+    private $address;
 
     public function __construct($props = []) {
         $this->props = $props;
     }
 
-    public function construct() {
+    public function construct($address) {
+        $this->address = $address;
         $this->state = $this->getInitialState();
+        $this->componentDidMount();
         $this->doRender();
         $this->stateChanged = false;
     }
 
     private function doRender() {
         $this->children = [];
-        $this->onSubmit = [];
         $this->html = $this->_doRender();
     }
 
     protected function _doRender() {
-        ob_start();
-        $this->render();
-        return ob_get_clean();
+        $twig = $this->render();
+        $html = $this->renderTwig($twig);
+        return $html;
+    }
+
+    /**
+     * @param string $str
+     * @return string
+     */
+    protected function renderTwig($str) {
+        /** @noinspection PhpDeprecationInspection */
+        /** @noinspection PhpInternalEntityUsedInspection */
+        $twig = new \Twig_Environment(new \Twig_Loader_String());
+        $twig->addFilter(new  \Twig_SimpleFilter('element', function($class, $props) {
+            $component = new $class($props);
+            return $this->element($component);
+        }));
+        $twig->addFilter(new  \Twig_SimpleFilter('onsubmit', function($handler) {
+            return $this->onSubmit($handler, 'submitForm');
+        }));
+        $twig->addFilter(new  \Twig_SimpleFilter('onclick', function($handler) {
+            return $this->onSubmit($handler, 'submitLink');
+        }));
+        return $twig->render($str, ['this' => new DataForTwig($this)]);
     }
 
     /**
@@ -96,23 +118,11 @@ abstract class ReactComponent {
         $this->children[$idx] = $component;
         $html = '{{#####' . $idx . '#####}}';
 
-        //アドレスが確定したのでセット
-        $component->setAddress($this->address . "." . $idx);
-
         //初期化
-        $component->construct();
+        $component->construct(array_merge($this->address, [$idx]));
 
         //返す
         return $html;
-    }
-
-    private $address;
-    public function setAddress($address) {
-        $this->address = $address;
-    }
-
-    public function getAddress() {
-        return $this->address;
     }
 
     /**
@@ -120,40 +130,29 @@ abstract class ReactComponent {
      */
     public abstract function render();
 
-    public function onSubmitA($handlerName) {
-        $address = $this->_onSubmit($handlerName);
-        return ' href="javascript:ReactPHP.submitLink(this, \'' . htmlspecialchars($address) . '\');"';
+    public function onSubmit($handler, $method) {
+        $address = implode('.', array_merge($this->address, [$handler[1]]));
+        return 'ReactPHP.' . $method . '(this, \'' . htmlspecialchars($address) . '\');';
     }
 
-    public function onSubmitForm($handlerName) {
-        $address = $this->_onSubmit($handlerName);
-        return ' onsubmit="ReactPHP.submitForm(this, \'' . htmlspecialchars($address) . '\');"';
-    }
+//    public function fireComponentDidMount() {
+//        $this->componentDidMount();
+//        foreach ($this->children as $child) {
+//            $child->fireComponentDidMount();
+//        }
+//    }
 
-    private function _onSubmit($handlerName) {
-        $address = $this->address . "." . $handlerName;
-        $this->onSubmit[$address] = [$this, $handlerName];
-        return $address;
-    }
-
-    public function fireComponentDidMount() {
-        $this->componentDidMount();
-        foreach ($this->children as $child) {
-            $child->fireComponentDidMount();
+    public function fireSubmit($handlerAddress, $args = null) {
+        $curAddr = array_shift($handlerAddress);
+        if (ctype_digit($curAddr)) {
+            return $this->children[$curAddr]->fireSubmit($handlerAddress, $args);
+        } else {
+            return $this->_fireSubmit([$this, $curAddr], $args);
         }
     }
 
-    public function fireSubmit($httpMethod, $handlerAddress) {
-        if ($handlerAddress && isset($this->onSubmit[$handlerAddress])) {
-            $this->_fireSubmit($this->onSubmit[$handlerAddress], $httpMethod);
-        }
-        foreach ($this->children as $child) {
-            $child->fireSubmit($httpMethod, $handlerAddress);
-        }
-    }
-
-    protected function _fireSubmit($onSubmit, $httpMethod) {
-        call_user_func($onSubmit, $httpMethod);
+    protected function _fireSubmit($onSubmit, $args = null) {
+        return call_user_func_array($onSubmit, $args);
     }
 
     public function rerender() {
@@ -175,5 +174,9 @@ abstract class ReactComponent {
             $html = str_replace('{{#####' . $idx . '#####}}', $_html, $html);
         }
         return $html;
+    }
+
+    public function getAddress() {
+        return $this->address;
     }
 }

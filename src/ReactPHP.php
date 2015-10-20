@@ -11,17 +11,18 @@ class ReactPHP {
      * @return string
      */
     public static function element($component) {
-        $component->construct();
-
-        //構築後の処理を行う()
-        $component->fireComponentDidMount();
-        $component->rerender(); //ステータスが変わったら、そこから下位を再描画
+        //まずは画面に表示されていた初期状態を再現する
+        $component->construct([]);
 
         //サブミットを処理
-        $httpMethod = strtoupper($_SERVER["REQUEST_METHOD"]);
         $handlerAddress = ReactPHP::getRequest('handlerAddress');
-        $component->fireSubmit($httpMethod, $handlerAddress);
-        $component->rerender(); //ステータスが変わったら、そこから下位を再描画
+        if (!empty($handlerAddress)) {
+            $handlerAddress = explode('.', $handlerAddress);
+            $component->fireSubmit($handlerAddress, [new Event()]);
+
+            //ステータスが変わったら、そこから下位を再描画
+            $component->rerender();
+        }
 
         //DOM描画
         $html = $component->toHtml() . self::writeBasicJs();
@@ -56,4 +57,8 @@ EOS;
         $str = preg_replace('/\*(.*?)\*/', '<span style="font-weight:bold;">$1</span>', $str);
         return $str;
     }
+}
+
+class Event {
+    public function preventDefault() {}
 }
