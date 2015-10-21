@@ -1,0 +1,19 @@
+{
+    "name": "waterada/react-php",
+    "description": "The module allows all PHPers to feel and understand the ReactJS more easily. This is a very light version of the ReactJS on PHP.",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "waterada",
+            "email": "email@example.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "waterada\\ReactPHP\\": "src/"
+        }
+    },
+    "require": {
+        "twig/twig": "~1.0"
+    }
+}

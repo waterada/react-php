@@ -1,9 +1,9 @@
 <?
-namespace comments2;
-require 'lib/ReactPHP.php';
-use ReactPHP\ReactPHP;
-use ReactPHP\ReactComponent;
-use ReactPHP\File;
+namespace reactphp;
+require '../vendor/autoload.php';
+use waterada\ReactPHP\ReactPHP;
+use waterada\ReactPHP\ReactComponent;
+use waterada\ReactPHP\File;
 function h($str) { return htmlspecialchars($str); } //デファオルトでの無害化は諦める
 
 //  CommentBox
@@ -69,7 +69,7 @@ class CommentList extends ReactComponent {
 
 class Comment extends ReactComponent {
     private function rawMarkup($text) {
-        $rawMarkup = \ReactPHP\marked($text, ['sanitize' => true]);
+        $rawMarkup = ReactPHP::marked($text, ['sanitize' => true]);
         return $rawMarkup;
     }
 
@@ -97,7 +97,7 @@ class CommentForm extends ReactComponent {
 
     public function render() {
         ?>
-        <form class="commentForm" <?= $this->onSubmitForm('handleSubmit') ?>>
+        <form class="commentForm" onsubmit="<?= $this->onSubmit([$this, 'handleSubmit'], 'submitForm') ?>">
             <input type="text" placeholder="Your name" name="author"/>
             <input type="text" placeholder="Say something..." name="text"/>
             <input type="submit" value="Post"/>
@@ -113,6 +113,7 @@ class CommentForm extends ReactComponent {
 <head>
     <meta charset="utf-8"/>
     <title>ReactPHP Tutorial</title>
+    <!--suppress JSUnresolvedLibraryURL -->
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 </head>
 <body>
