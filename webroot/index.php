@@ -26,6 +26,14 @@ class CommentBox extends ReactComponent {
         File::save($url, $comments);
     }
 
+    private function handleDeleteSubmit($deleteKey) {
+        $url = $this->props('url');
+        $comments = $this->state('data');
+        array_splice($comments, $deleteKey, 1);
+        $this->setState('data', $comments);
+        File::save($url, $comments);
+    }
+
     protected function getInitialState() {
         return ['data' => []];
     }
@@ -40,6 +48,9 @@ class CommentBox extends ReactComponent {
             <h1>Comments</h1>
             <?= $this->element(new CommentList([
                 'data' => $this->state('data'),
+                'onDeleteSubmit' => function ($deleteKey) {
+                    $this->handleDeleteSubmit($deleteKey);
+                },
             ])) ?>
             <?= $this->element(new CommentForm([
                 'onCommentSubmit' => function ($comment) {
@@ -60,6 +71,7 @@ class CommentList extends ReactComponent {
                     'author' => $comment['author'],
                     'key'    => $index,
                     'text'   => $comment['text'],
+                    'onDeleteSubmit' => $this->props('onDeleteSubmit'),
                 ])) ?>
             <? endforeach; ?>
         </div>
@@ -73,6 +85,10 @@ class Comment extends ReactComponent {
         return $rawMarkup;
     }
 
+    public function handleDeleteSubmit() {
+        call_user_func($this->props('onDeleteSubmit'), $this->props('key'));
+    }
+
     public function render() {
         ?>
         <div class="comment">
@@ -80,6 +96,7 @@ class Comment extends ReactComponent {
                 <?= h($this->props('author')) ?>
             </h2>
             <span><?= $this->rawMarkup($this->props('text')) /* 無害化不要 */ ?></span>
+            <a <?= $this->onSubmitA('handleDeleteSubmit') ?>>x</a>
         </div>
         <?
     }
@@ -124,3 +141,10 @@ class CommentForm extends ReactComponent {
 </div>
 </body>
 </html>
+<!--
+//    $(document).on('click', '.delete-link', function() { //Commentの仕事
+//        var deleteKey = $(this).attr('data-key'); //Commentの仕事
+//        $('#deleteKey').val(deleteKey); //formの仕事
+//        $('form').submit(); //formの仕事
+//    });
+-->

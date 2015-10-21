@@ -15,6 +15,10 @@ var Comment = React.createClass({
         var rawMarkup = marked(this.props.children.toString(), {sanitize: true});
         return { __html: rawMarkup };
     },
+    handleDeleteSubmit: function(e) {
+        e.preventDefault();
+        this.props.onDeleteSubmit(this.props.deleteKey);
+    },
 
     render: function() {
         return (
@@ -23,6 +27,7 @@ var Comment = React.createClass({
                     {this.props.author}
                 </h2>
                 <span dangerouslySetInnerHTML={this.rawMarkup()} />
+                <a onClick={this.handleDeleteSubmit}>x</a>
             </div>
         );
     }
@@ -61,6 +66,24 @@ var CommentBox = React.createClass({
         });
     },
 
+    handleDeleteSubmit: function(deleteKey) {
+        var comments = this.state.data;
+        var newComments = comments.concat([comment]);//çÌèú
+        this.setState({data: newComments});
+        $.ajax({
+            url: this.props.url,
+            dataType: 'json',
+            type: 'DELETE',
+            data: {deleteKey: deleteKey},
+            success: function(data) {
+                this.setState({data: data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
+
     getInitialState: function() {
         return {data: []};
     },
@@ -74,7 +97,7 @@ var CommentBox = React.createClass({
         return (
             <div className="commentBox">
                 <h1>Comments</h1>
-                <CommentList data={this.state.data} />
+                <CommentList data={this.state.data} onDeleteSubmit={this.handleDeleteSubmit} />
                 <CommentForm onCommentSubmit={this.handleCommentSubmit} />
             </div>
         );
@@ -88,7 +111,7 @@ var CommentList = React.createClass({
                 // `key` is a React-specific concept and is not mandatory for the
                 // purpose of this tutorial. if you're curious, see more here:
                 // http://facebook.github.io/react/docs/multiple-components.html#dynamic-children
-                <Comment author={comment.author} key={index}>
+                <Comment author={comment.author} key={index} onDeleteSubmit={this.props.onDeleteSubmit}>
                     {comment.text}
                 </Comment>
             );
