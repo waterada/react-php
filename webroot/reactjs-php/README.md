@@ -8,7 +8,7 @@ ReactJS のチュートリアルを PHP として動くようにReactJSのコア
 `普通の PHPer なら JS のまま ReactJS を習得するが、より練度の高い PHPer ならば PHP に再実装して ReactJS を理解するはずだ`
 という某 LT に感銘を受けての産物です。
 
-[チュートリアルの jsx版 と PHP版 のソースの比較はこちら](https://github.com/waterada/reactjs-php/compare/master...jsx?diff=split&name=jsx&w=1)
+[チュートリアルの jsx版 と PHP版 のソースの比較はこちら](https://github.com/waterada/react-php/compare/6f1edfafc85dd0bb6e57ac6463868fe75eb90fcd...master?diff=split&name=master&w=1#diff-354b6ba5ea10ab6a63facb21b9fe539e)
 
 
 ## コンセプト
