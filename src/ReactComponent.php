@@ -80,6 +80,26 @@ abstract class ReactComponent {
         return $this->props[$key];
     }
 
+    public function __get($name) {
+        list($type, $key) = explode('_', $name, 2);
+        if ($type === 'props') {
+            return $this->props($key);
+        }
+        if ($type === 'state') {
+            return $this->state($key);
+        }
+        throw new \Exception('Unkown property:' . $name);
+    }
+
+    public function __set($name, $value) {
+        list($type, $key) = explode('_', $name, 2);
+        if ($type === 'state') {
+            $this->setState($key, $value);
+            return;
+        }
+        throw new \Exception('Unkown property:' . $name);
+    }
+
     protected function getInitialState() {
         return [];
     }
@@ -108,6 +128,14 @@ abstract class ReactComponent {
      * @return string
      */
     public abstract function render();
+
+    public function onSubmitLink($handlerName) {
+        return $this->onSubmit([$this, $handlerName], 'submitLink');
+    }
+
+    public function onSubmitForm($handlerName) {
+        return $this->onSubmit([$this, $handlerName], 'submitForm');
+    }
 
     public function onSubmit($handler, $method) {
         $address = implode('.', array_merge($this->address, [$handler[1]]));
