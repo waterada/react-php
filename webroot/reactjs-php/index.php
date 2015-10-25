@@ -18,14 +18,14 @@ class Comment extends ReactComponent {
     }
 
     public function render() {
-        return $this->twig('
+        return ['
             <div className="comment">
                 <h2 className="commentAuthor">
-                    {{this.props.author}}
+                    {this.props.author}
                 </h2>
-                <span dangerouslySetInnerHTML="{{this.rawMarkup()}}" />
+                <span dangerouslySetInnerHTML={this.rawMarkup()} />
             </div>
-        ');
+        '];
     }
 }
 
@@ -73,35 +73,35 @@ class CommentBox extends ReactComponent {
     }
 
     public function render() {
-        return $this->twig('
+        return ['
             <div className="commentBox">
                 <h1>Comments</h1>
-                <CommentList data="{{this.state.data}}" />
-                <CommentForm onCommentSubmit="{{this.handleCommentSubmit}}" />
+                <CommentList data={this.state.data} />
+                <CommentForm onCommentSubmit={this.handleCommentSubmit} />
             </div>
-        ');
+        '];
     }
 }
 
 class CommentList extends ReactComponent {
     public function render() {
         $commentNodes =  $this->props('data')->map(function($comment, $index) {
-            return $this->twig(
+            return [
                 // `key` is a React-specific concept and is not mandatory for the
                 // purpose of this tutorial. if you're curious, see more here:
                 // http://facebook.github.io/react/docs/multiple-components.html#dynamic-children
                 '
-                <Comment author="{{comment.author}}" key="{{index}}">
-                    {{comment.text}}
+                <Comment author={comment.author} key={index}>
+                    {comment.text}
                 </Comment>
                 ', compact('comment', 'index')
-            );
+            ];
         });
-        return $this->twig('
+        return ['
             <div className="commentList">
-                {{commentNodes}}
+                {commentNodes}
             </div>
-        ', compact('commentNodes'));
+        ', compact('commentNodes')];
     }
 }
 
@@ -119,18 +119,17 @@ class CommentForm extends ReactComponent {
     }
 
     public function render() {
-        return $this->twig('
-            <form className="commentForm" onSubmit="{{this.handleSubmit}}">
+        return ['
+            <form className="commentForm" onSubmit={this.handleSubmit}>
                 <input type="text" placeholder="Your name" ref="author" />
                 <input type="text" placeholder="Say something..." ref="text" />
                 <input type="submit" value="Post" />
             </form>
-        ');
+        '];
     }
 }
 
-React::render(
-    __NAMESPACE__,
+React::render(__NAMESPACE__,
     '<CommentBox url="../file/comments" />',
     $content
 );

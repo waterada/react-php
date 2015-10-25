@@ -54,18 +54,36 @@ class React {
 
 abstract class ReactComponent extends \waterada\ReactPHP\ReactComponent {
     /**
-     * @param string     $str
+     * @param            $str
      * @param null|array $args
      * @return string
      */
-    public function twig($str, $args = null) {
+    public static function renderTwig($str, $args = null) {
         /** @noinspection PhpDeprecationInspection */
         /** @noinspection PhpInternalEntityUsedInspection */
         $twig = new \Twig_Environment(new \Twig_Loader_String());
-        if (!isset($str)) {
-            $args = ['this' => new DataForTwig($this)];
+        $str = preg_replace(   '#\{([^\}]+?)\}#'  ,   '{{$1}}' , $str);
+        $str = preg_replace('#=\{\{([^\}]+?)\}\}#', '="{{$1}}"', $str);
+        foreach ($args as $key => $value) {
+            if ($value instanceof ReactValue && $value->isRaw()) {
+                $str = str_replace('{{' . $key . '}}', '{{' . $key . '|raw}}', $str);
+            }
         }
         return $twig->render($str, $args);
+    }
+
+    /**
+     * @param array $params
+     * @return string
+     */
+    public function twig($params) {
+        if (count($params) == 1) {
+            list($str) = $params;
+            $args = ['this' => new DataForTwig($this)];
+        } else {
+            list($str, $args) = $params;
+        }
+        return self::renderTwig($str, $args);
     }
 
     protected function _doRender() {
@@ -171,14 +189,16 @@ abstract class ReactComponent extends \waterada\ReactPHP\ReactComponent {
 
 class TopComponent extends ReactComponent {
     public function render() {
-        return $this->props('xml')->toString();
+        return [$this->props('xml')->toString()];
     }
 }
 
 class ReactValue {
     private $value = null;
-    public function __construct($value) {
+    private $raw = false;
+    public function __construct($value, $raw = false) {
         $this->value = $value;
+        $this->raw = $raw;
     }
 
     /**
@@ -187,10 +207,16 @@ class ReactValue {
      */
     public function map($callback) {
         $array = $this->value;
-        if (!empty($array)) {
+        if (empty($array)) {
+            return new ReactValue($array);
+        } else {
             $array = array_map($callback, $array, range(0, count($array) - 1));
+            $array = array_map(function($line) {
+                list($str, $args) = $line;
+                return ReactComponent::renderTwig($str, $args);
+            }, $array);
+            return new ReactValue($array, true);
         }
-        return new ReactValue($array);
     }
 
     /**
@@ -213,6 +239,10 @@ class ReactValue {
 
     public function getValue() {
         return $this->value;
+    }
+
+    public function isRaw() {
+        return $this->raw;
     }
 
     public function __toString() {
