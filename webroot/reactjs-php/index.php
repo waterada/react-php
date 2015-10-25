@@ -1,28 +1,31 @@
 <?
-namespace comments;
+namespace waterada\reactjsphp;
+require '../../vendor/autoload.php';
 require 'ReactJsByPHP.php';
-use ReactJsByPHP\React;
-use ReactJsByPHP\ReactComponent;
-use ReactJsByPHP\Console;
-use ReactJsByPHP\JQuery;
-use ReactJsByPHP\Event;
+use waterada\ReactPHP\ReactPHP;
+use waterada\ReactJsByPHP\React;
+use waterada\ReactJsByPHP\ReactComponent;
+use waterada\ReactJsByPHP\Console;
+use waterada\ReactJsByPHP\JQuery;
+use waterada\ReactPHP\Event;
+function marked($str, $opt) { return ReactPHP::marked($str, $opt); }
 
 //var Comment = React.createClass({
 class Comment extends ReactComponent {
     public function rawMarkup() {
-        $rawMarkup = \ReactJsByPHP\marked($this->props('children')->toString(), ['sanitize' => true]);
+        $rawMarkup = marked($this->props('children')->toString(), ['sanitize' => true]);
         return ['__html' => $rawMarkup];
     }
 
     public function render() {
-        return <<< EOS
+        return $this->twig('
             <div className="comment">
                 <h2 className="commentAuthor">
-                    {$this->escape($this->props('author'))}
+                    {{this.props.author}}
                 </h2>
-                <span dangerouslySetInnerHTML="{$this->escape($this->rawMarkup())}" />
+                <span dangerouslySetInnerHTML="{{this.rawMarkup()}}" />
             </div>
-EOS;
+        ');
     }
 }
 
@@ -70,35 +73,35 @@ class CommentBox extends ReactComponent {
     }
 
     public function render() {
-        return <<< EOS
+        return $this->twig('
             <div className="commentBox">
                 <h1>Comments</h1>
-                <CommentList data="{$this->escape($this->state('data'))}" />
-                <CommentForm onCommentSubmit="{$this->escape([$this, 'handleCommentSubmit'])}" />
+                <CommentList data="{{this.state.data}}" />
+                <CommentForm onCommentSubmit="{{this.handleCommentSubmit}}" />
             </div>
-EOS;
+        ');
     }
 }
 
 class CommentList extends ReactComponent {
     public function render() {
-        $commentNodes = $this->props('data')->map(function($comment, $index) {
-            return (
+        $commentNodes =  $this->props('data')->map(function($comment, $index) {
+            return $this->twig(
                 // `key` is a React-specific concept and is not mandatory for the
                 // purpose of this tutorial. if you're curious, see more here:
                 // http://facebook.github.io/react/docs/multiple-components.html#dynamic-children
-            <<< EOS
-                    <Comment author="{$this->escape($comment['author'])}" key="{$this->escape($index)}">
-                        {$this->escape($comment['text'])}
-                    </Comment>
-EOS
+                '
+                <Comment author="{{comment.author}}" key="{{index}}">
+                    {{comment.text}}
+                </Comment>
+                ', compact('comment', 'index')
             );
         });
-        return <<< EOS
+        return $this->twig('
             <div className="commentList">
-                {$commentNodes}
+                {{commentNodes}}
             </div>
-EOS;
+        ', compact('commentNodes'));
     }
 }
 
@@ -116,17 +119,18 @@ class CommentForm extends ReactComponent {
     }
 
     public function render() {
-        return <<< EOS
-            <form className="commentForm" onSubmit="{$this->escape([$this, 'handleSubmit'])}" method="post">
+        return $this->twig('
+            <form className="commentForm" onSubmit="{{this.handleSubmit}}">
                 <input type="text" placeholder="Your name" ref="author" />
                 <input type="text" placeholder="Say something..." ref="text" />
                 <input type="submit" value="Post" />
             </form>
-EOS;
+        ');
     }
 }
 
 React::render(
+    __NAMESPACE__,
     '<CommentBox url="../file/comments" />',
     $content
 );
@@ -137,6 +141,7 @@ React::render(
 <head>
     <meta charset="utf-8" />
     <title>PHPReact Tutorial</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 </head>
 <body>
 <div id="content"><?= $content ?></div>
