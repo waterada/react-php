@@ -11,22 +11,25 @@ function h($str) { return htmlspecialchars($str); } //デファオルトでの�
 //          Comment
 //      CommentForm
 
+/**
+ * @property string $props_url
+ * @property array  $state_data
+ */
 class CommentBox extends ReactComponent {
     private function loadCommentsFromFile() {
-        $url = $this->props('url');
-        $comments = File::load($url);
-        $this->setState('data', $comments);
+        $comments = File::load($this->props_url);
+        $this->state_data = $comments;
     }
 
     private function handleCommentSubmit($comment) {
-        $url = $this->props('url');
-        $comments = $this->state('data');
+        $comments = $this->state_data;
         $comments[] = $comment;
-        $this->setState('data', $comments);
-        File::save($url, $comments);
+        $this->state_data = $comments;
+        File::save($this->props_url, $comments);
     }
 
     protected function getInitialState() {
+        $this->state_data = [];
         return ['data' => []];
     }
 
@@ -39,7 +42,7 @@ class CommentBox extends ReactComponent {
         <div class="commentBox">
             <h1>Comments</h1>
             <?= $this->element(new CommentList([
-                'data' => $this->state('data'),
+                'data' => $this->state_data,
             ])) ?>
             <?= $this->element(new CommentForm([
                 'onCommentSubmit' => function ($comment) {
@@ -51,11 +54,14 @@ class CommentBox extends ReactComponent {
     }
 }
 
+/**
+ * @property array $props_data
+ */
 class CommentList extends ReactComponent {
     public function render() {
         ?>
         <div class="commentList">
-            <? foreach ($this->props('data') as $index => $comment): ?>
+            <? foreach ($this->props_data as $index => $comment): ?>
                 <?= $this->element(new Comment([
                     'author' => $comment['author'],
                     'key'    => $index,
@@ -67,6 +73,11 @@ class CommentList extends ReactComponent {
     }
 }
 
+/**
+ * @property string $props_author
+ * @property string $props_text
+ * @property string $props_key
+ */
 class Comment extends ReactComponent {
     private function rawMarkup($text) {
         $rawMarkup = ReactPHP::marked($text, ['sanitize' => true]);
@@ -77,14 +88,17 @@ class Comment extends ReactComponent {
         ?>
         <div class="comment">
             <h2 class="commentAuthor">
-                <?= h($this->props('author')) ?>
+                <?= h($this->props_author) ?>
             </h2>
-            <span><?= $this->rawMarkup($this->props('text')) /* 無害化不要 */ ?></span>
+            <span><?= $this->rawMarkup($this->props_text) /* 無害化不要 */ ?></span>
         </div>
         <?
     }
 }
 
+/**
+ * @property callable $props_onCommentSubmit
+ */
 class CommentForm extends ReactComponent {
     public function handleSubmit() {
         $author = trim(ReactPHP::getRequest('author'));
@@ -92,7 +106,7 @@ class CommentForm extends ReactComponent {
         if (!$text || !$author) {
             return;
         }
-        call_user_func($this->props('onCommentSubmit'), ['author' => $author, 'text' => $text]);
+        call_user_func($this->props_onCommentSubmit, ['author' => $author, 'text' => $text]);
     }
 
     public function render() {
