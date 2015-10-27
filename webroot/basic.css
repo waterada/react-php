@@ -1,0 +1,15 @@
+.comment > h2 {
+    margin: 2px 2px;
+    padding: 2px;
+    font-size: 14pt;
+    background: #ddd;
+}
+
+.comment > span {
+    font-size: 14pt;
+    margin: 4px 0 20px 6px;
+}
+
+.comment {
+    margin: 0 0 10px 0;
+}
