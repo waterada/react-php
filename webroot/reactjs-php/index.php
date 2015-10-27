@@ -141,6 +141,7 @@ React::render(__NAMESPACE__,
     <meta charset="utf-8" />
     <title>PHPReact Tutorial</title>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/basic.css" />
 </head>
 <body>
 <div id="content"><?= $content ?></div>
