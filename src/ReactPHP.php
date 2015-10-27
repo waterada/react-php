@@ -7,7 +7,7 @@ class ReactPHP {
     }
 
     /**
-     * @param ReactComponent $component
+     * @param ReactElement $component
      * @return string
      */
     public static function element($component) {

@@ -6,7 +6,7 @@ require_once 'DataForTwig.php';
 class React {
     public static $NAMESPACE;
 
-    /** @var ReactComponent */
+    /** @var ReactElement */
     public static $top;
 
     public static function findDOMNode($name) {
@@ -26,7 +26,7 @@ class React {
     }
 
 //    public static function escape($obj) {
-//        if (is_array($obj) && isset($obj[0]) && isset($obj[1]) && count($obj) == 2 && $obj[0] instanceof ReactComponent) {
+//        if (is_array($obj) && isset($obj[0]) && isset($obj[1]) && count($obj) == 2 && $obj[0] instanceof ReactElement) {
 //            return self::escape(['__CALLBACK__' => $obj[1]]);
 //        } else {
 //            if ($obj instanceof ReactValue) {
@@ -37,7 +37,7 @@ class React {
 //    }
 
     /**
-     * @param \waterada\ReactPHP\ReactComponent $component
+     * @param \waterada\ReactPHP\ReactElement $component
      * @param $method
      * @return string
      */
@@ -52,7 +52,7 @@ class React {
     }
 }
 
-abstract class ReactComponent extends \waterada\ReactPHP\ReactComponent {
+abstract class ReactElement extends \waterada\ReactPHP\ReactElement {
     /**
      * @param            $str
      * @param null|array $args
@@ -107,7 +107,7 @@ abstract class ReactComponent extends \waterada\ReactPHP\ReactComponent {
                 $child = $this->decodeAttr($child);
                 $props['children'] = [$child];
             }
-            /** @var ReactComponent $component */
+            /** @var ReactElement $component */
             $component = new $class($props);
             return $this->element($component);
         } else {
@@ -187,7 +187,7 @@ abstract class ReactComponent extends \waterada\ReactPHP\ReactComponent {
     }
 }
 
-class TopComponent extends ReactComponent {
+class TopComponent extends ReactElement {
     public function render() {
         return [$this->props('xml')->toString()];
     }
@@ -213,7 +213,7 @@ class ReactValue {
             $array = array_map($callback, $array, range(0, count($array) - 1));
             $array = array_map(function($line) {
                 list($str, $args) = $line;
-                return ReactComponent::renderTwig($str, $args);
+                return ReactElement::renderTwig($str, $args);
             }, $array);
             return new ReactValue($array, true);
         }

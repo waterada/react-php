@@ -4,14 +4,14 @@ require '../../vendor/autoload.php';
 require 'ReactJsByPHP.php';
 use waterada\ReactPHP\ReactPHP;
 use waterada\ReactJsByPHP\React;
-use waterada\ReactJsByPHP\ReactComponent;
+use waterada\ReactJsByPHP\ReactElement;
 use waterada\ReactJsByPHP\Console;
 use waterada\ReactJsByPHP\JQuery;
 use waterada\ReactPHP\Event;
 function marked($str, $opt) { return ReactPHP::marked($str, $opt); }
 
 //var Comment = React.createClass({
-class Comment extends ReactComponent {
+class Comment extends ReactElement {
     public function rawMarkup() {
         $rawMarkup = marked($this->props('children')->toString(), ['sanitize' => true]);
         return ['__html' => $rawMarkup];
@@ -30,7 +30,7 @@ class Comment extends ReactComponent {
 }
 
 //var CommentBox = React.createClass({
-class CommentBox extends ReactComponent {
+class CommentBox extends ReactElement {
     private function loadCommentsFromServer() {
         JQuery::ajax([
             'url' => $this->props('url'),
@@ -83,7 +83,7 @@ class CommentBox extends ReactComponent {
     }
 }
 
-class CommentList extends ReactComponent {
+class CommentList extends ReactElement {
     public function render() {
         $commentNodes =  $this->props('data')->map(function($comment, $index) {
             return [
@@ -105,7 +105,7 @@ class CommentList extends ReactComponent {
     }
 }
 
-class CommentForm extends ReactComponent {
+class CommentForm extends ReactElement {
     public function handleSubmit(Event $e) {
         $e->preventDefault();
         $author = trim(React::findDOMNode($this->refs('author'))->value);

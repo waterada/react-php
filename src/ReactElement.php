@@ -1,7 +1,7 @@
 <?php
 namespace waterada\ReactPHP;
 
-abstract class ReactComponent {
+abstract class ReactElement {
     /** @var array */
     private $state = [];
 
@@ -11,7 +11,7 @@ abstract class ReactComponent {
     /** @var boolean */
     private $stateChanged = false;
 
-    /** @var ReactComponent[] */
+    /** @var ReactElement[] */
     private $children = [];
 
     /** @var string */
@@ -108,7 +108,7 @@ abstract class ReactComponent {
     }
 
     /**
-     * @param ReactComponent $component
+     * @param ReactElement $component
      * @return string
      */
     public function element($component) {

@@ -2,7 +2,7 @@
 namespace author;
 require '../vendor/autoload.php';
 use waterada\ReactPHP\ReactPHP;
-use waterada\ReactPHP\ReactComponent;
+use waterada\ReactPHP\ReactElement;
 use waterada\ReactPHP\File;
 function h($str) { return htmlspecialchars($str); } //デファオルトでの無害化は諦める
 
@@ -15,7 +15,7 @@ function h($str) { return htmlspecialchars($str); } //デファオルトでの�
  * @property string $props_url
  * @property array  $state_data
  */
-class CommentBox extends ReactComponent {
+class CommentBox extends ReactElement {
     private function loadCommentsFromFile() {
         $comments = File::load($this->props_url);
         $this->state_data = $comments;
@@ -72,7 +72,7 @@ class CommentBox extends ReactComponent {
  * @property array $props_data
  * @property callable $props_onDelete //削除機能
  */
-class CommentList extends ReactComponent {
+class CommentList extends ReactElement {
     public function render() {
         ?>
         <div class="commentList">
@@ -95,7 +95,7 @@ class CommentList extends ReactComponent {
  * @property string $props_key
  * @property callable $props_onDelete //削除機能
  */
-class Comment extends ReactComponent {
+class Comment extends ReactElement {
     private function rawMarkup($text) {
         $rawMarkup = ReactPHP::marked($text, ['sanitize' => true]);
         return $rawMarkup;
@@ -121,7 +121,7 @@ class Comment extends ReactComponent {
  * @property callable $props_onCommentSubmit
  * @property callable $props_getLastComment //記入者表示機能
  */
-class CommentForm extends ReactComponent {
+class CommentForm extends ReactElement {
     public function handleSubmit() {
         $author = trim(ReactPHP::getRequest('author'));
         $text = trim(ReactPHP::getRequest('text'));
@@ -157,7 +157,7 @@ class CommentForm extends ReactComponent {
  * @property integer  $props_key
  * @property callable $props_onDelete
  */
-class CommentDelete extends ReactComponent {
+class CommentDelete extends ReactElement {
     protected function getInitialState() {
         $this->state_opened = false;
         return ['opened' => false];

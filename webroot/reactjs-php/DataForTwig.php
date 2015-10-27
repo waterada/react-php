@@ -2,7 +2,7 @@
 namespace waterada\ReactPHP;
 
 class DataForTwig {
-    /** @var ReactComponent */
+    /** @var ReactElement */
     protected $component;
 
     /** @var MapForTwig */
@@ -12,7 +12,7 @@ class DataForTwig {
     public $state;
 
     /**
-     * @param ReactComponent $component
+     * @param ReactElement $component
      */
     public function __construct($component) {
         $this->component = $component;
