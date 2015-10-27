@@ -28,7 +28,7 @@ class CommentBox extends ReactComponent {
         File::save($this->props_url, $comments);
     }
 
-    public function onDelete($key) {
+    public function onDelete($key) { //削除機能
         $comments = $this->state_data;
         array_splice($comments, $key, 1);
         $this->state_data = $comments;
@@ -44,7 +44,7 @@ class CommentBox extends ReactComponent {
         $this->loadCommentsFromFile();
     }
 
-    public function getLastComment() {
+    public function getLastComment() { //記入者表示機能
         $comments = $this->state_data;
         return array_pop($comments);
     }
@@ -55,13 +55,13 @@ class CommentBox extends ReactComponent {
             <h1>Comments</h1>
             <?= $this->element(new CommentList([
                 'data' => $this->state_data,
-                'onDelete' => [$this, 'onDelete'],
+                'onDelete' => [$this, 'onDelete'], //削除機能
             ])) ?>
             <?= $this->element(new CommentForm([
                 'onCommentSubmit' => function ($comment) {
                     $this->handleCommentSubmit($comment);
                 },
-                'getLastComment' => [$this, 'getLastComment'],
+                'getLastComment' => [$this, 'getLastComment'], //記入者表示機能
             ])) ?>
         </div>
         <?
@@ -70,7 +70,7 @@ class CommentBox extends ReactComponent {
 
 /**
  * @property array $props_data
- * @property callable $props_onDelete
+ * @property callable $props_onDelete //削除機能
  */
 class CommentList extends ReactComponent {
     public function render() {
@@ -81,7 +81,7 @@ class CommentList extends ReactComponent {
                     'author' => $comment['author'],
                     'key'    => $index,
                     'text'   => $comment['text'],
-                    'onDelete' => $this->props_onDelete,
+                    'onDelete' => $this->props_onDelete, //削除機能
                 ])) ?>
             <? endforeach; ?>
         </div>
@@ -93,7 +93,7 @@ class CommentList extends ReactComponent {
  * @property string $props_author
  * @property string $props_text
  * @property string $props_key
- * @property callable $props_onDelete
+ * @property callable $props_onDelete //削除機能
  */
 class Comment extends ReactComponent {
     private function rawMarkup($text) {
@@ -108,7 +108,7 @@ class Comment extends ReactComponent {
                 <?= h($this->props_author) ?>
             </h2>
             <span><?= $this->rawMarkup($this->props_text) /* 無害化不要 */ ?></span>
-            <?= $this->element(new CommentDelete([
+            <?= $this->element(new CommentDelete([ //削除機能
                 'key' => $this->props_key,
                 'onDelete' => $this->props_onDelete,
             ])) ?>
@@ -119,7 +119,7 @@ class Comment extends ReactComponent {
 
 /**
  * @property callable $props_onCommentSubmit
- * @property callable $props_getLastComment
+ * @property callable $props_getLastComment //記入者表示機能
  */
 class CommentForm extends ReactComponent {
     public function handleSubmit() {
@@ -131,7 +131,7 @@ class CommentForm extends ReactComponent {
         call_user_func($this->props_onCommentSubmit, ['author' => $author, 'text' => $text]);
     }
 
-    public function getLastAuthor() {
+    public function getLastAuthor() { //記入者表示機能
         $comment = call_user_func($this->props_getLastComment);
         if (empty($comment)) {
             return "";
@@ -143,7 +143,7 @@ class CommentForm extends ReactComponent {
     public function render() {
         ?>
         <form class="commentForm" onsubmit="<?= $this->onSubmit([$this, 'handleSubmit'], 'submitForm') ?>">
-            <input type="text" placeholder="Your name" name="author" value="<?= $this->getLastAuthor() ?>" />
+            <input type="text" placeholder="Your name" name="author" value="<?= $this->getLastAuthor() //記入者表示機能 ?>" />
             <input type="text" placeholder="Say something..." name="text"/>
             <input type="submit" value="Post"/>
         </form>
@@ -151,6 +151,7 @@ class CommentForm extends ReactComponent {
     }
 }
 
+//削除機能
 /**
  * @property boolean  $state_opened
  * @property integer  $props_key

@@ -28,7 +28,7 @@ class CommentBox extends ReactComponent {
         File::save($this->props_url, $comments);
     }
 
-    public function onDelete($key) {
+    public function onDelete($key) { //削除機能
         $comments = $this->state_data;
         array_splice($comments, $key, 1);
         $this->state_data = $comments;
@@ -50,7 +50,7 @@ class CommentBox extends ReactComponent {
             <h1>Comments</h1>
             <?= $this->element(new CommentList([
                 'data' => $this->state_data,
-                'onDelete' => [$this, 'onDelete'],
+                'onDelete' => [$this, 'onDelete'], //削除機能
             ])) ?>
             <?= $this->element(new CommentForm([
                 'onCommentSubmit' => function ($comment) {
@@ -64,7 +64,7 @@ class CommentBox extends ReactComponent {
 
 /**
  * @property array $props_data
- * @property callable $props_onDelete
+ * @property callable $props_onDelete //削除機能
  */
 class CommentList extends ReactComponent {
     public function render() {
@@ -75,7 +75,7 @@ class CommentList extends ReactComponent {
                     'author' => $comment['author'],
                     'key'    => $index,
                     'text'   => $comment['text'],
-                    'onDelete' => $this->props_onDelete,
+                    'onDelete' => $this->props_onDelete, //削除機能
                 ])) ?>
             <? endforeach; ?>
         </div>
@@ -87,7 +87,7 @@ class CommentList extends ReactComponent {
  * @property string $props_author
  * @property string $props_text
  * @property string $props_key
- * @property callable $props_onDelete
+ * @property callable $props_onDelete //削除機能
  */
 class Comment extends ReactComponent {
     private function rawMarkup($text) {
@@ -102,7 +102,7 @@ class Comment extends ReactComponent {
                 <?= h($this->props_author) ?>
             </h2>
             <span><?= $this->rawMarkup($this->props_text) /* 無害化不要 */ ?></span>
-            <?= $this->element(new CommentDelete([
+            <?= $this->element(new CommentDelete([ //削除機能
                 'key' => $this->props_key,
                 'onDelete' => $this->props_onDelete,
             ])) ?>
@@ -135,6 +135,7 @@ class CommentForm extends ReactComponent {
     }
 }
 
+//削除機能
 /**
  * @property boolean  $state_opened
  * @property integer  $props_key
